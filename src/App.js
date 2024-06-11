@@ -1,25 +1,82 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import Die from "./Die";
+import Confetti from "react-confetti"
 
-function App() {
+export default function App() {
+  const [dice, setDice] = React.useState(allNewDice());
+  const [tenzies, setTenzies] = React.useState(false);
+
+  React.useEffect(() => {
+    const isTenzies = dice.every((die) => die.value === dice[0].value && die.isHeld === true);
+    setTenzies(isTenzies);
+    if (tenzies === true) {
+      console.log("You Win");
+    }
+  }, [dice]);
+
+  function allNewDice() {
+    let die = [];
+    for (let i = 0; i < 10; i++) {
+      die.push({ value: Math.floor(Math.random() * 6) + 1, isHeld: false });
+    }
+    return die;
+  }
+
+  function rollDice() {
+    setDice((prevDice) =>
+      prevDice.map((die, i) =>
+        die.isHeld ? die : { ...die, value: Math.floor(Math.random() * 6) + 1 }
+      )
+    );
+  }
+
+  function newGame(){
+    setTenzies(false)
+    setDice(allNewDice())
+  }
+
+  function holdDice(index) {
+    setDice((prevDice) =>
+      prevDice.map((die, i) =>
+        i === index ? { ...die, isHeld: !die.isHeld } : die
+      )
+    );
+  }
+
+  const randomDice = dice.map((die, index) => {
+    return (
+      <Die
+        key={index}
+        value={die.value}
+        isHeld={die.isHeld}
+        onClick={() => holdDice(index)}
+      />
+    );
+  });
+
+  function handleButton(){
+    if(tenzies === false){
+      rollDice()
+    }else{
+      newGame()
+    }
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+<main>
+            {tenzies && <Confetti />}
+            <h1 className="title">Tenzies</h1>
+            <p className="instructions">Roll until all dice are the same. 
+            Click each die to freeze it at its current value between rolls.</p>
+            <div className="dice-container">
+                {randomDice}
+            </div>
+            <button 
+                className="roll-dice" 
+                onClick={handleButton}
+            >
+                {tenzies ? "New Game" : "Roll"}
+            </button>
+        </main>
   );
 }
-
-export default App;
