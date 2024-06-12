@@ -13,7 +13,7 @@ export default function App() {
     if (tenzies === true) {
       console.log("You Win");
     }
-  }, [dice]);
+  }, [dice, tenzies]);
 
   function allNewDice() {
     let die = [];
